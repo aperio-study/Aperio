@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>if(/^https?:/.test(location.protocol)&&!/(\/|\.html)$/.test(location.pathname))document.write('<base href="'+location.pathname+'/">')</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aperio</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1b7a6c">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="tailwind.css">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{font-family:'Bricolage Grotesque',system-ui,sans-serif}
+body{--bg:#eef3f4;--g1:#bfe8df;--g2:#f6dfb8;--solid:#f4f8f8;--ink:#15232b;--card:rgba(255,255,255,.72);--acc:#1b7a6c;--acc2:#e9a23b;--real:#c4182c;--mut:#5d717b;--line:rgba(21,35,43,.14);--sh:0 10px 30px -14px rgba(20,60,60,.35);background:radial-gradient(900px 520px at 5% -8%,var(--g1),transparent 62%),radial-gradient(800px 520px at 100% 0,var(--g2),transparent 58%),var(--bg);background-attachment:fixed;color:var(--ink);transition:background .5s,color .4s}
+body[data-mode=exam]{--bg:#151920;--g1:#5c1722;--g2:#1f3047;--solid:#222933;--ink:#eceff3;--card:rgba(38,45,56,.78);--acc:#e0283b;--acc2:#ff8a5c;--real:#ff6b78;--mut:#a0abb8;--line:rgba(255,255,255,.12);--sh:0 10px 30px -14px rgba(0,0,0,.7)}
+.card{background:var(--card);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:18px;padding:1.1rem;box-shadow:var(--sh)}
+.btn{padding:.5rem 1rem;border-radius:99px;border:1px solid var(--line);font-weight:600;cursor:pointer;color:var(--ink);background:transparent;transition:transform .15s,border-color .15s}
+.btn:active:not(:disabled){transform:scale(.97)}
+.day{aspect-ratio:1/1;min-height:3rem;border-radius:12px;border:1px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-weight:600;cursor:pointer;color:var(--ink)}
+.day:hover{border-color:var(--acc)}
+.day.today{background:var(--card);border-color:var(--line)}
+.day.sel{background:var(--acc);color:#fff}
+.dots{display:flex;gap:3px;min-height:7px}
+.dots i{width:7px;height:7px;border-radius:99px;box-shadow:0 0 0 1.5px rgba(255,255,255,.75)}
+.dots i.exam{border-radius:2px}
+.dots i.real{border-radius:0;transform:rotate(45deg);width:8px;height:8px}
+.day.hasreal:not(.sel){border-color:var(--real)}
+select{background:var(--solid);border:1px solid var(--line);border-radius:10px;padding:.45rem .6rem;color:var(--ink);min-width:0}
+.nv{display:flex;flex-direction:column;align-items:center;gap:2px;border-color:transparent;font-size:.7rem;padding:.45rem 1.2rem;min-width:5.2rem}
+.grad{background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.nm{border-bottom:3px dashed var(--acc2);cursor:pointer}
+.live{width:.6rem;height:.6rem;border-radius:99px;background:var(--acc);animation:pl 1.4s infinite}
+@keyframes pl{50%{opacity:.25}}
+.hd{display:flex;align-items:center;gap:.55rem;font-weight:700}
+.hd::before{content:"";width:.65rem;height:.65rem;border-radius:99px;background:linear-gradient(135deg,var(--acc),var(--acc2))}
+#ring{filter:drop-shadow(0 0 5px var(--acc))}
+.btn:hover:not(:disabled){border-color:var(--acc)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+.chip{padding:.25rem .7rem;border-radius:99px;border:1px solid var(--line);cursor:pointer;font-size:.85rem}
+.chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+input[type=text],input[type=number]{background:transparent;border:1px solid var(--line);border-radius:10px;padding:.45rem .7rem;color:var(--ink);min-width:0}
+.pane{position:relative;height:max(560px,calc(100vh - 150px));border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--solid)}
+.pane iframe{width:100%;height:100%;border:0}
+.vault{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;gap:.5rem;background:repeating-linear-gradient(135deg,#12161b 0 14px,#171c22 14px 28px);color:#e8ebf0}
+.vault.on{display:flex}
+.hide{display:none!important}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+dialog{border-radius:14px;padding:1.5rem;max-width:22rem;background:var(--solid);color:var(--ink);border:1px solid var(--line)}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+.muted{color:var(--mut)}
+label:focus-within{outline:2px solid var(--acc);outline-offset:2px}
+.drop{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;background:var(--solid);border:2px dashed var(--line);border-radius:14px;line-height:1.7;padding:1rem}
+.pane.over{border-color:var(--acc)}
+textarea{background:transparent;border:1px solid var(--line);border-radius:10px;padding:.5rem .7rem;color:var(--ink);resize:vertical}
+input[type=range],input[type=checkbox]{accent-color:var(--acc)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body data-mode="study" class="min-h-screen">
+<div class="max-w-7xl mx-auto p-4 md:p-6 pb-28">
+
+<header class="flex flex-wrap items-center justify-between gap-3 mb-4">
+  <div class="flex items-center gap-3">
+    <svg class="w-11 h-11" viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--acc)"/><stop offset="1" style="stop-color:var(--acc2)"/></linearGradient></defs><circle cx="20" cy="20" r="15" fill="none" stroke="var(--line)" stroke-width="5"/><path d="M20 5a15 15 0 1 1-13 22.5" fill="none" stroke="url(#lg)" stroke-width="5" stroke-linecap="round"/></svg>
+    <div><h1 class="text-3xl font-extrabold tracking-tight leading-none">Aperio</h1><p class="muted text-xs mt-1">Study calm. Test hard.</p></div>
+  </div>
+  <div class="flex items-center gap-3">
+    <button id="install" class="btn hide">Install app</button>
+  </div>
+</header>
+<p id="status" class="muted text-sm mb-3" role="status" aria-live="polite">&nbsp;</p>
+
+<div id="work">
+<section class="card lg:sticky top-2 z-20 py-3 flex flex-wrap items-center justify-between gap-5">
+  <div class="flex items-center gap-4">
+    <div class="relative w-28 h-28 shrink-0">
+      <svg viewBox="0 0 200 200" class="w-full h-full -rotate-90" aria-hidden="true">
+        <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--acc)"/><stop offset="1" style="stop-color:var(--acc2)"/></linearGradient></defs>
+        <circle cx="100" cy="100" r="88" fill="none" stroke="var(--line)" stroke-width="12"/>
+        <circle id="ring" cx="100" cy="100" r="88" fill="none" stroke="url(#rg)" stroke-width="12" stroke-linecap="round" stroke-dasharray="552.92" stroke-dashoffset="0"/>
+      </svg>
+      <div class="absolute inset-0 flex items-center justify-center"><div id="clock" class="text-2xl font-extrabold tabular-nums">25:00</div></div>
+    </div>
+    <div>
+      <div id="clockLabel" class="text-sm font-semibold muted mb-2">Focus interval</div>
+      <div id="studyCtl" class="flex gap-2 flex-wrap">
+        <button id="minus" class="btn" aria-label="Subtract 5 minutes">&minus;5</button>
+        <button id="startStop" class="btn pri min-w-24">Start</button>
+        <button id="plus" class="btn" aria-label="Add 5 minutes">+5</button>
+        <button id="reset" class="btn">Reset</button>
+      </div>
+      <div id="examCtl" class="hide">
+        <div id="exDur" class="flex items-center gap-2 mb-2">
+          <button id="exMinus" class="btn" aria-label="Subtract 5 minutes">&minus;5</button>
+          <input id="exMin" type="number" min="1" max="300" class="w-20 text-center" aria-label="Exam length in minutes">
+          <span class="text-sm muted">min</span>
+          <button id="exPlus" class="btn" aria-label="Add 5 minutes">+5</button>
+        </div>
+        <div id="exAns" class="flex items-center gap-2 mb-2 text-sm"><label class="btn text-sm cursor-pointer">Answer sheet PDF<input id="fa2" type="file" accept="application/pdf" class="sr-only"></label><span id="na2" class="muted text-xs truncate max-w-40"></span></div>
+        <button id="startExam" class="btn pri">Start exam</button>
+        <button id="submitEarly" class="btn pri hide">Submit exam early</button>
+      </div>
+    </div>
+  </div>
+  <div class="min-w-0 flex-1 md:max-w-md">
+    <div id="chips" class="flex flex-wrap gap-2 mb-2"></div>
+    <div class="flex gap-2 items-center">
+      <input id="newSub" type="text" placeholder="Add a subject" maxlength="30" class="flex-1 text-sm" aria-label="New subject name">
+      <button id="addSub" class="btn text-sm">Add</button>
+      <button id="delSub" class="muted text-xs underline">Delete selected</button>
+    </div>
+  </div>
+</section>
+
+<div id="panes" class="grid md:grid-cols-2 gap-4 mt-4">
+  <div id="colQ">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="hd">Exam paper</span>
+      <span id="nq" class="muted text-xs truncate min-w-0 flex-1 text-right"></span>
+      <label class="btn text-sm cursor-pointer">Choose PDF<input id="fq" type="file" accept="application/pdf" class="sr-only"></label>
+    </div>
+    <div class="pane" id="pq"><iframe id="frameQ" title="Exam paper"></iframe>
+      <div id="dq" class="drop"><div>Drop the exam paper here<br><span class="muted text-sm">or press Choose PDF</span></div></div></div>
+  </div>
+  <div id="colA">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="hd">Answer sheet</span>
+      <span id="na" class="muted text-xs truncate min-w-0 flex-1 text-right"></span>
+      <label class="btn text-sm cursor-pointer">Choose PDF<input id="fa" type="file" accept="application/pdf" class="sr-only"></label>
+    </div>
+    <div class="pane" id="pa"><iframe id="frameA" title="Answer sheet"></iframe>
+      <div id="da" class="drop"><div>Drop the answer sheet here<br><span class="muted text-sm">or press Choose PDF</span></div></div>
+    </div>
+  </div>
+</div>
+
+<section id="grade" class="card mt-5 hide">
+  <h2 class="hd text-lg">Exam finished</h2>
+  <p class="muted text-sm mb-4">Mark your paper against the answer sheet, then enter your marks for <strong id="gradeSub"></strong>.</p>
+  <div class="flex flex-wrap items-end gap-5">
+    <label class="text-sm">Marks earned<input id="gm" type="number" min="0" step="0.5" class="block w-28 mt-1"></label>
+    <label class="text-sm">Out of<input id="gt" type="number" min="1" step="0.5" value="100" class="block w-28 mt-1"></label>
+    <div><div id="gpct" class="text-5xl font-extrabold tabular-nums leading-none">--%</div><div id="glet" class="muted text-sm mt-1">&nbsp;</div></div>
+  </div>
+  <p id="gcmp" class="muted text-sm mt-3"></p>
+  <label class="text-sm block mt-3">What to review next (optional)<textarea id="gnote" rows="2" maxlength="300" class="block w-full mt-1" placeholder="Topics or question numbers you got wrong"></textarea></label>
+  <div class="flex gap-2 mt-4"><button id="saveScore" class="btn pri">Save score</button><button id="skipScore" class="btn">Discard without saving</button></div>
+</section>
+
+<div class="grid md:grid-cols-[2fr_1fr] gap-5 mt-5">
+  <section class="card text-sm">
+    <h2 class="hd mb-3">Ambient sound</h2>
+    <div id="nchips" class="flex flex-wrap gap-2 mb-3"></div>
+    <div class="flex items-center gap-3">
+      <button id="nplay" class="btn pri min-w-20">Play</button>
+      <input id="nvol" type="range" min="0" max="1" step="0.05" class="flex-1" aria-label="Volume">
+    </div>
+    <label class="flex items-center gap-2 mt-3"><input id="chime" type="checkbox"> Chime at 10:00, 5:00 and 00:00</label>
+  </section>
+  <section class="card text-sm">
+    <h2 class="hd mb-3">Backup</h2>
+    <p class="muted mb-3">Autosaved in this browser by localStorage (key <code>aperio:v1</code>). Export a copy now and then. Planned PDFs stay on this device and are not exported.</p>
+    <button id="exp" class="btn">Export</button>
+    <label class="btn inline-block">Import<input id="imp" type="file" accept="application/json" class="hide"></label>
+  </section>
+</div>
+
+<section class="card mt-5">
+  <h2 class="hd text-lg mb-3">Progress</h2>
+  <div id="stats" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+  <div class="grid lg:grid-cols-[1fr_300px] gap-6 mt-5">
+    <div><div id="fchips" class="flex flex-wrap gap-2 mb-3"></div><div id="chart" class="overflow-x-auto"></div></div>
+    <div><h3 class="font-semibold text-sm mb-3">Average by subject</h3><div id="bars"></div></div>
+  </div>
+  <ul id="history" class="mt-5 text-sm"></ul>
+</section>
+</div>
+
+<section id="home" class="hide">
+  <div class="card mb-5 py-7">
+    <p id="hDate" class="muted text-sm mb-1"></p>
+    <p id="hPend" class="hide text-sm mb-2">A finished exam is waiting for your score.<button id="hGrade" class="btn pri text-xs ml-2">Log score</button><button id="hDisc" class="muted text-xs underline ml-3">Discard</button></p>
+    <p id="hNext" class="hide text-sm font-semibold mb-2" style="color:var(--real)"></p>
+    <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight">Hello, <button id="nameBtn" class="nm grad" title="Change your name"></button><input id="nameIn" type="text" maxlength="24" class="hide text-3xl font-bold w-64" aria-label="Your name"></h2>
+    <p class="muted text-sm mt-2">Tap your name to change it.</p>
+  </div>
+  <div class="grid lg:grid-cols-[1fr_1.5fr] gap-5">
+    <div class="card">
+      <h3 class="hd mb-3">Studied today</h3>
+      <div class="flex items-center gap-4 flex-wrap"><div id="hToday" class="text-6xl font-extrabold tabular-nums">0m</div><div id="hLive" class="hide flex items-center gap-2 text-xs muted"><span class="live"></span>Timer running</div></div>
+      <p class="muted text-sm mt-3">Last 7 days: <strong id="hWeek" style="color:var(--ink)">0m</strong></p>
+      <p class="muted text-xs mt-1">Counts the time your study and exam timers are running.</p>
+      <button id="goStudy" class="btn pri mt-4">Start studying</button>
+    </div>
+    <div class="card">
+      <div class="flex items-center justify-between mb-3"><h3 class="hd">Coming up</h3><button id="goCal" class="muted text-xs underline">Open calendar</button></div>
+      <ul id="upList" class="space-y-2 text-sm"></ul>
+    </div>
+  </div>
+</section>
+
+<section id="cal" class="hide">
+  <div class="grid lg:grid-cols-[1.4fr_1fr] gap-5">
+    <div class="card">
+      <div class="flex items-center justify-between mb-3">
+        <h2 id="calTitle" class="hd text-lg"></h2>
+        <div class="flex gap-2"><button id="calPrev" class="btn" aria-label="Previous month">&lsaquo;</button><button id="calToday" class="btn text-sm">Today</button><button id="calNext" class="btn" aria-label="Next month">&rsaquo;</button></div>
+      </div>
+      <div class="grid grid-cols-7 text-center text-xs muted mb-1"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+      <div id="calGrid" class="grid grid-cols-7 gap-1"></div>
+      <p class="muted text-xs mt-3">Round dots are study sessions, square dots are exam practice, and red-outlined days with a diamond hold a real test. Colours match the subject.</p>
+    </div>
+    <div class="card">
+      <h2 id="dayTitle" class="hd text-lg mb-3"></h2>
+      <ul id="dayList" class="space-y-2 text-sm mb-4"></ul>
+      <div class="pt-3" style="border-top:1px solid var(--line)">
+        <h3 class="font-semibold text-sm mb-2">Plan something</h3>
+        <div class="grid grid-cols-2 gap-2 mb-2"><select id="pSub" aria-label="Subject"></select><select id="pKind" aria-label="Type"><option value="exam">Exam practice</option><option value="study">Study session</option><option value="real">Real test</option></select></div>
+        <input id="pNote" type="text" maxlength="80" placeholder="Note (topic, paper name)" class="w-full mb-3 text-sm" aria-label="Note">
+        <div id="pTimeRow" class="hide mb-3"><label class="text-sm">Start time (optional)<input id="pTime" type="time" class="ml-2"></label></div>
+        <div id="pFiles"><div class="flex flex-wrap items-center gap-2 text-sm mb-2"><label class="btn text-sm cursor-pointer">Exam paper PDF<input id="cq" type="file" accept="application/pdf" class="sr-only"></label><span id="cqn" class="muted text-xs truncate max-w-48"></span></div>
+        <div class="flex flex-wrap items-center gap-2 text-sm mb-3"><label class="btn text-sm cursor-pointer">Solutions PDF<input id="ca" type="file" accept="application/pdf" class="sr-only"></label><span id="can" class="muted text-xs truncate max-w-48"></span></div></div>
+        <button id="pAdd" class="btn pri">Add to calendar</button>
+        <p class="muted text-xs mt-2">PDFs are stored on this device only, so you can plan ahead and open them with one click.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<nav class="card fixed bottom-4 left-1/2 -translate-x-1/2 z-30 flex gap-1" style="padding:.35rem;border-radius:99px" aria-label="Modes">
+  <button id="m-home" class="btn nv" aria-label="Overview"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span>Home</span></button>
+  <button id="m-study" class="btn nv" aria-label="Study mode"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Study</span></button>
+  <button id="m-exam" class="btn nv" aria-label="Exam mode"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg><span>Exam</span></button>
+  <button id="m-calendar" class="btn nv" aria-label="Calendar"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>Calendar</span></button>
+</nav>
+
+<dialog id="dlg">
+  <h3 class="font-bold text-lg mb-1">Submit exam now?</h3>
+  <p class="muted text-sm mb-4">The answer sheet unlocks and your timer stops. You can't undo this.</p>
+  <div class="flex justify-end gap-2">
+    <button id="dlgNo" class="btn">Keep going</button>
+    <button id="dlgYes" class="btn pri">Submit</button>
+  </div>
+</dialog>
+
+<script>
+const KEY='aperio:v1', $=id=>document.getElementById(id);
+const COLORS=['#1b7a6c','#e0283b','#d99a00','#4361ee','#8e44ad','#e67e22','#2a9d8f'];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const C=2*Math.PI*88;
+
+/* ---------- state + persistence ---------- */
+function load(){
+  const d={subjects:[{id:'s1',name:'Mathematics',color:COLORS[0]},{id:'s2',name:'Physics',color:COLORS[1]},{id:'s3',name:'Chemistry',color:COLORS[2]}],scores:[],active:'s1',studyMin:25,session:null,noise:{type:'white',vol:.3},chime:true,examMin:60,plans:[],name:'Student',log:{}};
+  try{return {...d,...JSON.parse(localStorage.getItem(KEY)||localStorage.getItem('persistence:v1')||localStorage.getItem('focusstation:v1')||'{}')}}catch{return d}
+}
+let state=load();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){console.warn('Save failed',e)}};
+
+/* ---------- runtime ---------- */
+let mode='home', unsealed=false;
+let run={left:state.studyMin*60000,endsAt:null};
+const urls={q:null,a:null};
+const subj=id=>state.subjects.find(s=>s.id===id);
+const busy=()=>!!state.session;
+const examRunning=()=>mode==='exam'&&state.session&&!state.session.ended;
+const status=t=>{$('status').textContent=t||'\u00a0'};
+
+// restore an exam that was in progress (or finished) when the page closed
+if(state.session){
+  if(!state.session.ended&&state.session.endsAt<=Date.now()){state.session.ended=true;state.session.early=false;save()}
+  if(!state.session.ended)mode='exam';
+}
+
+/* ---------- subjects ---------- */
+$('addSub').onclick=addSubject;
+$('newSub').onkeydown=e=>{if(e.key==='Enter')addSubject()};
+function addSubject(){
+  const name=$('newSub').value.trim();
+  if(!name)return;
+  if(state.subjects.some(s=>s.name.toLowerCase()===name.toLowerCase()))return status('That subject already exists.');
+  const s={id:crypto.randomUUID(),name,color:COLORS[state.subjects.length%COLORS.length]};
+  state.subjects.push(s);state.active=s.id;$('newSub').value='';save();render();
+}
+$('delSub').onclick=()=>{
+  const s=subj(state.active);
+  if(!s||busy())return status(busy()?'Finish the exam before deleting subjects.':'Select a subject first.');
+  if(!confirm(`Delete "${s.name}"? Its past scores stay in your history.`))return;
+  state.subjects=state.subjects.filter(x=>x.id!==s.id);state.active=state.subjects[0]?.id||null;save();render();
+};
+
+/* ---------- modes ---------- */
+function setMode(m){
+  if(m===mode)return;
+  if(examRunning())return status('Finish or submit your exam before switching modes.');
+  mode=m;unsealed=!!(m==='exam'&&state.session&&state.session.ended);status('');render();
+}
+$('m-study').onclick=()=>setMode('study');
+$('m-exam').onclick=()=>setMode('exam');
+$('m-calendar').onclick=()=>setMode('calendar');
+$('m-home').onclick=()=>setMode('home');
+const setEx=v=>{state.examMin=Math.max(1,Math.min(300,Math.round(v)||60));save();render()};
+$('exMinus').onclick=()=>setEx(state.examMin-5);$('exPlus').onclick=()=>setEx(state.examMin+5);$('exMin').onchange=e=>setEx(+e.target.value);
+
+/* ---------- study timer ---------- */
+$('startStop').onclick=()=>{
+  if(run.endsAt){run.left=run.endsAt-Date.now();run.endsAt=null}
+  else{audio();if(run.left<=0){run.left=state.studyMin*60000;fired=new Set()}run.endsAt=Date.now()+run.left}
+  render();
+};
+$('reset').onclick=()=>{fired=new Set();run={left:state.studyMin*60000,endsAt:null};render()};
+const adj=d=>{if(run.endsAt)return;state.studyMin=Math.max(5,Math.min(180,state.studyMin+d));fired=new Set();run={left:state.studyMin*60000,endsAt:null};save();render()};
+$('minus').onclick=()=>adj(-5);$('plus').onclick=()=>adj(5);
+
+/* ---------- exam ---------- */
+$('startExam').onclick=()=>{
+  if(!state.active)return status('Add and select a subject first.');
+  unsealed=false;fired=new Set();audio();
+  state.session={subjectId:state.active,durationMin:state.examMin,endsAt:Date.now()+state.examMin*60000,ended:false,early:false};
+  save();status('Exam started. Good luck.');render();
+};
+$('submitEarly').onclick=()=>$('dlg').showModal();
+$('dlgNo').onclick=()=>$('dlg').close();
+$('dlgYes').onclick=()=>{$('dlg').close();endExam(true)};
+function endExam(early){
+  if(!state.session||state.session.ended)return;
+  state.session.ended=true;state.session.early=early;save();
+  unsealed=true;status(early?'Submitted early. Answer sheet unlocked.':'Time is up. Answer sheet unlocked.');render();
+}
+const letter=p=>p>=90?'A':p>=80?'B':p>=70?'C':p>=60?'D':'F';
+function gradeCalc(){
+  const m=parseFloat($('gm').value),t=parseFloat($('gt').value);
+  if(!(t>0)||Number.isNaN(m)||m<0||m>t){$('gpct').textContent='--%';$('glet').textContent='\u00a0';$('gcmp').textContent='';return null}
+  const p=Math.round(m/t*1000)/10,prev=state.scores.filter(r=>r.subjectId===state.session?.subjectId).at(-1);
+  $('gpct').textContent=p+'%';$('glet').textContent='Grade '+letter(p);
+  $('gcmp').textContent=prev?`${p>=prev.score?'Up':'Down'} ${Math.abs(p-prev.score).toFixed(1)} points from your last score of ${prev.score}%.`:'This is your first score for this subject.';
+  return p;
+}
+$('gm').oninput=$('gt').oninput=gradeCalc;
+$('saveScore').onclick=()=>{
+  const p=gradeCalc();
+  if(p===null)return status('Enter marks between 0 and the total.');
+  const s=state.session;
+  state.scores.push({id:crypto.randomUUID(),subjectId:s.subjectId,score:p,marks:+$('gm').value,total:+$('gt').value,note:$('gnote').value.trim(),date:new Date().toISOString(),durationMin:s.durationMin,early:s.early});
+  state.session=null;unsealed=false;$('gm').value='';$('gnote').value='';gradeCalc();save();status('Score saved.');render();
+};
+$('skipScore').onclick=()=>{if(confirm('Discard this exam without logging a score?')){state.session=null;unsealed=false;save();render()}};
+window.addEventListener('beforeunload',e=>{if(examRunning()){e.preventDefault();e.returnValue=''}});
+
+/* ---------- PDFs ---------- */
+const names={q:'',a:''};
+function pick(k,f){
+  if(!f)return;
+  if(f.type!=='application/pdf')return status('Choose a PDF file.');
+  if(urls[k])URL.revokeObjectURL(urls[k]);
+  urls[k]=URL.createObjectURL(f);names[k]=f.name;render();
+}
+for(const k of ['q','a']){
+  $('f'+k).onchange=e=>{pick(k,e.target.files[0]);e.target.value=''};
+  const pn=$('p'+k);
+  pn.ondragover=e=>{e.preventDefault();pn.classList.add('over')};
+  pn.ondragleave=()=>pn.classList.remove('over');
+  pn.ondrop=e=>{e.preventDefault();pn.classList.remove('over');pick(k,e.dataTransfer.files[0])};
+}
+$('fa2').onchange=e=>{pick('a',e.target.files[0]);e.target.value=''};
+function setFrame(id,url){
+  const f=$(id),want=url||'about:blank';
+  if(f.dataset.u!==want){f.dataset.u=want;f.src=want}
+}
+
+/* ---------- sound ---------- */
+let ac=null,nodeSrc=null,nGain=null,fired=new Set();
+const marks=[[600000,1],[300000,2],[0,3]];
+const NOISES=[['white','White noise'],['rain','Light rain'],['wind','Soft wind'],['waves','Calm waves']];
+const BASE={white:'white',rain:'pink',wind:'brown',waves:'pink'};
+if(!NOISES.some(n=>n[0]===state.noise.type))state.noise.type='rain';
+if(state.session&&!state.session.ended){const l=state.session.endsAt-Date.now();marks.forEach(([t])=>{if(l<=t)fired.add(t)})}
+function audio(){
+  if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();
+  if(ac.state==='suspended')ac.resume();
+  return ac;
+}
+document.addEventListener('click',()=>{if(ac&&ac.state==='suspended')ac.resume()});
+function beep(t,f,d,v){
+  const o=ac.createOscillator(),g=ac.createGain();
+  o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);
+  o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d+.05);
+}
+function chime(n){
+  if(!state.chime||!ac)return;audio();
+  const t=ac.currentTime+.05;
+  if(n===3)[660,880,1100].forEach((f,i)=>beep(t+i*.35,f,1.3,.3));
+  else for(let i=0;i<n;i++)beep(t+i*.28,n===1?660:880,.5,.25);
+}
+function checkChimes(left,total,live){
+  let hit=0;
+  for(const [thr,n] of marks)if(!fired.has(thr)&&left<=thr){fired.add(thr);if(live&&(total>thr||!thr))hit=n}
+  if(hit){chime(hit);if(hit<3)status(hit===1?'10 minutes left.':'5 minutes left.')}
+}
+function noiseBuf(type){
+  const c=audio(),len=c.sampleRate*4,b=c.createBuffer(1,len,c.sampleRate),d=b.getChannelData(0);
+  let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0,last=0;
+  for(let i=0;i<len;i++){
+    const w=Math.random()*2-1;
+    if(type==='pink'||type==='rain'){b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.969*b2+w*.153852;b3=.8665*b3+w*.3104856;b4=.55*b4+w*.5329522;b5=-.7616*b5-w*.016898;d[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11;b6=w*.115926}
+    else if(type==='brown'){last=(last+.02*w)/1.02;d[i]=last*3.5}
+    else d[i]=w*.5;
+  }
+  return b;
+}
+let lfos=[];
+function noiseStop(){
+  lfos.forEach(o=>{try{o.stop()}catch{}});lfos=[];
+  if(nodeSrc){try{nodeSrc.stop()}catch{}nodeSrc.disconnect();nodeSrc=null}
+}
+function noiseStart(){
+  noiseStop();const c=audio(),t=state.noise.type;
+  nodeSrc=c.createBufferSource();nodeSrc.buffer=noiseBuf(BASE[t]);nodeSrc.loop=true;
+  nGain=c.createGain();nGain.gain.value=state.noise.vol;
+  let out=nodeSrc;
+  const flt=(type,hz,q)=>{const n=c.createBiquadFilter();n.type=type;n.frequency.value=hz;n.Q.value=q||.7;out.connect(n);out=n;return n};
+  const lfo=(param,rate,depth)=>{const o=c.createOscillator(),g=c.createGain();o.frequency.value=rate;g.gain.value=depth;o.connect(g).connect(param);o.start();lfos.push(o)};
+  const swell=(base,rate,depth)=>{const g=c.createGain();g.gain.value=base;out.connect(g);out=g;lfo(g.gain,rate,depth)};
+  if(t==='rain'){flt('highpass',500);flt('lowpass',6500)}
+  else if(t==='wind'){lfo(flt('bandpass',420,.8).frequency,.07,180);swell(.65,.11,.3)}
+  else if(t==='waves'){flt('lowpass',1000);swell(.5,.1,.45)}
+  out.connect(nGain).connect(c.destination);nodeSrc.start();
+}
+$('nplay').onclick=()=>{if(nodeSrc)noiseStop();else noiseStart();render()};
+$('nvol').oninput=e=>{state.noise.vol=+e.target.value;if(nGain)nGain.gain.value=state.noise.vol;save()};
+$('chime').onchange=e=>{state.chime=e.target.checked;save();if(state.chime){audio();chime(1)}};
+let dip;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dip=e;$('install').classList.remove('hide')});
+$('install').onclick=async()=>{dip.prompt();await dip.userChoice;$('install').classList.add('hide')};
+
+/* ---------- tick ---------- */
+function tick(){
+  acct();
+  let left,total,live=false;
+  if(mode==='exam'){
+    const s=state.session;total=(s?s.durationMin:state.examMin)*60000;
+    left=!s?total:s.ended?0:Math.max(0,s.endsAt-Date.now());live=examRunning();
+    if(live){checkChimes(left,total,true);if(left<=0)return endExam(false)}
+  }else{
+    total=state.studyMin*60000;live=!!run.endsAt;
+    if(run.endsAt){
+      left=run.endsAt-Date.now();checkChimes(Math.max(0,left),total,true);
+      if(left<=0){run={left:0,endsAt:null};left=0;status('Interval complete. Take a short break.');render()}
+    }else left=run.left;
+    left=Math.max(0,left);
+  }
+  const sec=Math.ceil(left/1000),t=`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
+  $('clock').textContent=t;
+  $('ring').style.strokeDashoffset=C*(1-left/total);
+  document.title=(left>0&&live?t+' · ':'')+'Aperio';
+  if(mode==='home')paintHome();
+}
+setInterval(tick,250);
+
+/* ---------- render ---------- */
+function render(){
+  document.body.dataset.mode=mode;
+  const ex=mode==='exam';
+  for(const m of ['home','study','exam','calendar'])$('m-'+m).classList.toggle('pri',mode===m);
+  $('work').classList.toggle('hide',mode==='calendar'||mode==='home');$('cal').classList.toggle('hide',mode!=='calendar');$('home').classList.toggle('hide',mode!=='home');
+  $('chips').replaceChildren(...state.subjects.map(s=>{
+    const b=document.createElement('button');
+    b.className='chip'+(s.id===state.active?' on':'');b.textContent=s.name;
+    b.onclick=()=>{if(examRunning())return status('Subject is locked during the exam.');state.active=s.id;save();render()};
+    return b;
+  }));
+  if(!state.subjects.length)$('chips').textContent='No subjects yet. Add one below.';
+  $('studyCtl').classList.toggle('hide',ex);
+  $('examCtl').classList.toggle('hide',!ex);
+  $('startExam').classList.toggle('hide',busy());
+  $('submitEarly').classList.toggle('hide',!examRunning());
+  $('startStop').textContent=run.endsAt?'Pause':'Start';
+  $('minus').disabled=$('plus').disabled=!!run.endsAt;
+  $('clockLabel').textContent=ex?(examRunning()?'Exam in progress':busy()?'Exam finished':'Exam mode'):'Focus interval';
+  if(!ex&&run.left>0&&!run.endsAt)$('clock').textContent=`${String(state.studyMin).padStart(2,'0')}:00`;
+  const two=!ex||unsealed;
+  $('colA').classList.toggle('hide',!two);
+  $('panes').className='grid gap-4 mt-4 '+(two?'md:grid-cols-2':'grid-cols-1');
+  $('exDur').classList.toggle('hide',busy());$('exAns').classList.toggle('hide',busy());
+  $('exMin').value=state.examMin;$('startExam').textContent=`Start ${state.examMin}-minute exam`;$('na2').textContent=names.a;
+  $('dq').classList.toggle('hide',!!urls.q);$('da').classList.toggle('hide',!!urls.a);
+  $('nq').textContent=names.q;$('na').textContent=names.a;
+  setFrame('frameQ',urls.q);
+  setFrame('frameA',two?urls.a:null);
+  if(mode==='calendar')renderCal();
+  if(mode==='home')renderHome();
+  const g=ex&&state.session&&state.session.ended;
+  $('grade').classList.toggle('hide',!g);
+  if(g){$('gradeSub').textContent=subj(state.session.subjectId)?.name||'Deleted subject';gradeCalc()}
+  $('nchips').replaceChildren(...NOISES.map(([k,n])=>{const b=document.createElement('button');b.className='chip'+(k===state.noise.type?' on':'');b.textContent=n;b.onclick=()=>{state.noise.type=k;save();if(nodeSrc)noiseStart();render()};return b}));
+  $('nplay').textContent=nodeSrc?'Stop':'Play';$('nvol').value=state.noise.vol;$('chime').checked=state.chime;
+  renderAnalytics();tick();
+}
+
+/* ---------- analytics ---------- */
+const nameOf=id=>subj(id)?.name??'Deleted subject';
+let filt='all';
+function renderAnalytics(){
+  const subs=state.subjects.filter(s=>state.scores.some(r=>r.subjectId===s.id));
+  if(filt!=='all'&&!subs.some(s=>s.id===filt))filt='all';
+  const by=s=>state.scores.filter(r=>r.subjectId===s.id),avg=m=>m.reduce((t,r)=>t+r.score,0)/m.length;
+  const st=$('stats');st.replaceChildren();
+  for(const s of subs){
+    const m=by(s),d=m.length>1?m.at(-1).score-m.at(-2).score:0;
+    const c=document.createElement('div');c.className='card';c.style.borderLeft=`5px solid ${s.color}`;
+    c.innerHTML=`<div class="muted text-xs">${esc(s.name)}</div><div class="text-3xl font-extrabold">${avg(m).toFixed(1)}%</div><div class="text-xs muted">Best ${Math.max(...m.map(r=>r.score))}%, ${m.length} attempt${m.length>1?'s':''}${m.length>1?`, ${d>=0?'up':'down'} ${Math.abs(d).toFixed(1)} on last`:''}</div>`;
+    st.append(c);
+  }
+  $('fchips').replaceChildren(...(subs.length?[{id:'all',name:'All subjects'},...subs]:[]).map(s=>{const b=document.createElement('button');b.className='chip'+(s.id===filt?' on':'');b.textContent=s.name;b.onclick=()=>{filt=s.id;renderAnalytics()};return b}));
+  const ch=$('chart');
+  if(!subs.length){ch.className='muted text-sm';ch.textContent='Finish an exam and log a score to see your progress here.';$('bars').textContent=''}
+  else{
+    ch.className='overflow-x-auto';
+    const data=(filt==='all'?subs:subs.filter(s=>s.id===filt)).map(s=>({s,p:by(s)})),N=Math.max(...data.map(d=>d.p.length));
+    const W=640,H=270,L=38,R=14,T=12,B=44,iw=W-L-R,ih=H-T-B,y=v=>T+ih-v/100*ih,x=i=>L+(N<2?iw/2:i/(N-1)*iw);
+    let v=`<svg viewBox="0 0 ${W} ${H}" class="w-full max-w-3xl" role="img" aria-label="Scores by attempt">`;
+    for(const g of [0,25,50,75,100])v+=`<line x1="${L}" x2="${W-R}" y1="${y(g)}" y2="${y(g)}" stroke="var(--line)"/><text x="${L-6}" y="${y(g)+4}" text-anchor="end" font-size="10" fill="var(--mut)">${g}%</text>`;
+    for(let i=0;i<N;i++)v+=`<text x="${x(i)}" y="${H-B+16}" text-anchor="middle" font-size="10" fill="var(--mut)">${i+1}</text>`;
+    v+=`<text x="${L+iw/2}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--mut)">Attempt number</text>`;
+    for(const {s,p} of data){
+      const q=p.map((r,i)=>[x(i),y(r.score)]),pts=q.map(a=>a.join(',')).join(' '),a=avg(p);
+      if(filt!=='all')v+=`<polygon points="${pts} ${x(p.length-1)},${y(0)} ${x(0)},${y(0)}" fill="${s.color}" opacity=".13"/><line x1="${L}" x2="${W-R}" y1="${y(a)}" y2="${y(a)}" stroke="${s.color}" stroke-dasharray="5 4"/><text x="${W-R}" y="${y(a)-5}" text-anchor="end" font-size="10" fill="var(--mut)">average ${a.toFixed(1)}%</text>`;
+      v+=`<polyline fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linejoin="round" points="${pts}"/>`;
+      q.forEach((c,i)=>v+=`<circle cx="${c[0]}" cy="${c[1]}" r="5" fill="${s.color}"><title>${esc(s.name)}: ${p[i].score}% on ${new Date(p[i].date).toLocaleDateString()}</title></circle>`);
+    }
+    ch.innerHTML=v+'</svg>';
+    $('bars').innerHTML=subs.map(s=>{const a=avg(by(s));return `<div class="mb-3"><div class="flex justify-between text-xs mb-1"><span>${esc(s.name)}</span><span>${a.toFixed(1)}%</span></div><div class="h-3 rounded-full" style="background:var(--line)"><div class="h-3 rounded-full" style="width:${a}%;background:${s.color}"></div></div></div>`}).join('');
+  }
+  const ul=$('history');ul.replaceChildren();
+  [...state.scores].reverse().slice(0,15).forEach(r=>{
+    const li=document.createElement('li');li.className='py-2 border-t';li.style.borderColor='var(--line)';
+    li.innerHTML=`<div class="flex justify-between gap-3"><span>${esc(new Date(r.date).toLocaleDateString())}, <strong>${esc(nameOf(r.subjectId))}</strong>: ${r.score}%${r.marks!=null?` (${r.marks}/${r.total})`:''}${r.early?', submitted early':''}</span><button class="muted text-xs underline" aria-label="Remove this score">Remove</button></div>${r.note?`<div class="muted text-xs mt-1">Review: ${esc(r.note)}</div>`:''}`;
+    li.querySelector('button').onclick=()=>{state.scores=state.scores.filter(x=>x.id!==r.id);save();renderAnalytics()};
+    ul.append(li);
+  });
+}
+
+/* ---------- calendar ---------- */
+const idb=new Promise((res,rej)=>{const r=indexedDB.open('persistence',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const dbp=(m,fn)=>idb.then(db=>new Promise((res,rej)=>{const t=db.transaction('f',m),q=fn(t.objectStore('f'));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)}));
+const fput=(k,b)=>dbp('readwrite',o=>o.put(b,k)),fget=k=>dbp('readonly',o=>o.get(k)),fdel=k=>dbp('readwrite',o=>o.delete(k));
+const dk=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+let cal=new Date(),sel=dk(new Date()),pend={q:null,a:null};cal.setDate(1);
+const colorOf=id=>subj(id)?.color||'#888';
+const KIND={exam:'Exam practice',study:'Study session',real:'Real test'};
+const when=d=>{const n=Math.round((new Date(d+'T00:00')-new Date(dk(new Date())+'T00:00'))/864e5);return n<0?`${-n} day${n<-1?'s':''} ago`:n===0?'Today':n===1?'Tomorrow':`In ${n} days`};
+function renderCal(){
+  const y=cal.getFullYear(),m=cal.getMonth(),today=dk(new Date());
+  $('calTitle').textContent=cal.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+  const g=$('calGrid');g.replaceChildren();
+  for(let i=(new Date(y,m,1).getDay()+6)%7;i>0;i--)g.append(document.createElement('div'));
+  for(let d=1,n=new Date(y,m+1,0).getDate();d<=n;d++){
+    const key=dk(new Date(y,m,d)),its=state.plans.filter(p=>p.date===key),b=document.createElement('button');
+    b.className='day'+(key===sel?' sel':'')+(key===today?' today':'')+(its.some(p=>p.kind==='real')?' hasreal':'');
+    b.setAttribute('aria-label',`${d} ${cal.toLocaleDateString(undefined,{month:'long'})}, ${its.length} planned`);
+    b.innerHTML=`<span>${d}</span><span class="dots">${[...its].sort((a,b)=>(b.kind==='real')-(a.kind==='real')).slice(0,4).map(p=>`<i class="${p.kind}" style="background:${colorOf(p.subjectId)}"></i>`).join('')}</span>`;
+    b.onclick=()=>{sel=key;renderCal()};g.append(b);
+  }
+  $('dayTitle').textContent=new Date(sel+'T00:00').toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'});
+  const cur=$('pSub').value;
+  $('pSub').innerHTML=state.subjects.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  $('pSub').value=state.subjects.some(s=>s.id===cur)?cur:(state.active||'');
+  const ul=$('dayList');ul.replaceChildren();
+  const its=state.plans.filter(p=>p.date===sel);
+  if(!its.length)ul.innerHTML='<li class="muted">Nothing planned for this day.</li>';
+  for(const p of its){
+    const li=document.createElement('li');li.className='rounded-xl p-3';li.style.border='1px solid var(--line)';
+    li.innerHTML=`<div class="flex items-center gap-2"><i class="${p.kind==='real'?'rotate-45 rounded-none':'rounded-full'} inline-block w-3 h-3" style="background:${colorOf(p.subjectId)}"></i><strong>${esc(nameOf(p.subjectId))}</strong><span class="text-xs ${p.kind==='real'?'font-bold':'muted'}"${p.kind==='real'?' style="color:var(--real)"':''}>${KIND[p.kind]}${p.time?', '+esc(p.time):''}</span></div>${p.note?`<div class="mt-1">${esc(p.note)}</div>`:''}${p.kind==='real'?`<div class="text-xs mt-1" style="color:var(--real)">${when(p.date)}</div>`:`<div class="muted text-xs mt-1">${p.qName?'Paper: '+esc(p.qName):'No paper attached'}${p.aName?', Solutions: '+esc(p.aName):''}</div>`}<div class="flex items-center gap-3 mt-2">${p.kind==='real'?'':`<button class="btn pri text-xs go">Open in ${p.kind==='exam'?'Exam':'Study'} mode</button>`}<button class="muted text-xs underline rm">Remove</button></div>`;
+    li.querySelector('.go')&&(li.querySelector('.go').onclick=()=>launch(p));
+    li.querySelector('.rm').onclick=()=>{fdel(p.id+':q').catch(()=>{});fdel(p.id+':a').catch(()=>{});state.plans=state.plans.filter(x=>x.id!==p.id);save();renderCal()};
+    ul.append(li);
+  }
+}
+async function launch(p){
+  if(examRunning())return status('Finish or submit your exam first.');
+  for(const k of ['q','a']){
+    if(urls[k])URL.revokeObjectURL(urls[k]);
+    urls[k]=null;names[k]='';
+    const b=p[k+'Name']?await fget(p.id+':'+k).catch(()=>null):null;
+    if(b){urls[k]=URL.createObjectURL(b);names[k]=p[k+'Name']}
+  }
+  if(subj(p.subjectId))state.active=p.subjectId;
+  mode=p.kind;unsealed=!!(p.kind==='exam'&&state.session&&state.session.ended);save();
+  status(p.qName&&!urls.q?'The saved paper could not be loaded. Choose it again.':'');render();
+}
+$('pKind').onchange=()=>{const r=$('pKind').value==='real';$('pFiles').classList.toggle('hide',r);$('pTimeRow').classList.toggle('hide',!r)};
+$('calPrev').onclick=()=>{cal.setMonth(cal.getMonth()-1);renderCal()};
+$('calNext').onclick=()=>{cal.setMonth(cal.getMonth()+1);renderCal()};
+$('calToday').onclick=()=>{cal=new Date();cal.setDate(1);sel=dk(new Date());renderCal()};
+for(const k of ['q','a'])$('c'+k).onchange=e=>{
+  const f=e.target.files[0];
+  if(f&&f.type==='application/pdf'){pend[k]=f;$('c'+k+'n').textContent=f.name}else if(f)status('Choose a PDF file.');
+  e.target.value='';
+};
+$('pAdd').onclick=async()=>{
+  if(!state.subjects.length)return status('Add a subject first.');
+  const p={id:crypto.randomUUID(),date:sel,subjectId:$('pSub').value,kind:$('pKind').value,note:$('pNote').value.trim(),qName:pend.q?.name||'',aName:pend.a?.name||''};
+  if(p.kind==='real'){p.qName=p.aName='';pend={q:null,a:null};p.time=$('pTime').value}
+  try{if(pend.q)await fput(p.id+':q',pend.q);if(pend.a)await fput(p.id+':a',pend.a)}catch{p.qName=p.aName='';status('Could not store the PDFs in this browser.')}
+  state.plans.push(p);pend={q:null,a:null};$('pNote').value='';$('cqn').textContent=$('can').textContent='';$('pTime').value='';save();renderCal();
+};
+
+/* ---------- overview + study log ---------- */
+let seg=null,lastSave=0;
+function acct(){
+  const now=Date.now(),ex=examRunning();
+  const end=ex?state.session.endsAt:(mode!=='exam'&&run.endsAt?run.endsAt:null);
+  if(end===null){if(seg!==null){save();seg=null}return}
+  if(seg===null)seg=now;
+  const to=Math.min(now,end);
+  if(to>seg){const k=dk(new Date(now));state.log[k]=(state.log[k]||0)+(to-seg)/1000}
+  seg=now;
+  if(now-lastSave>5000){save();lastSave=now}
+}
+addEventListener('pagehide',save);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+const fmt=sec=>{const m=Math.floor(sec/60);return m>=60?`${Math.floor(m/60)}h ${m%60}m`:m>=1?`${m}m`:`${Math.floor(sec)}s`};
+function paintHome(){
+  $('hToday').textContent=fmt(state.log[dk(new Date())]||0);
+  let w=0;for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);w+=state.log[dk(d)]||0}
+  $('hWeek').textContent=fmt(w);
+  $('hLive').classList.toggle('hide',seg===null);
+}
+function renderHome(){
+  $('nameBtn').textContent=state.name;
+  $('hDate').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'});
+  const t=new Date(),today=dk(t);t.setDate(t.getDate()+1);const tmr=dk(t);
+  const its=state.plans.filter(p=>p.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
+  const ul=$('upList');ul.replaceChildren();
+  if(!its.length)ul.innerHTML='<li class="muted">Nothing planned yet. Add study sessions or exam practice in the calendar.</li>';
+  for(const p of its){
+    const label=p.date===today?'Today':p.date===tmr?'Tomorrow':new Date(p.date+'T00:00').toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+    const li=document.createElement('li');li.className='rounded-xl p-3';li.style.border='1px solid var(--line)';
+    li.innerHTML=`<div class="flex items-center gap-3"><div class="w-24 shrink-0 text-xs font-semibold"${p.date===today?' style="color:var(--acc)"':''}>${esc(label)}</div><i class="inline-block w-3 h-3 shrink-0 ${p.kind==='real'?'rotate-45 rounded-none':p.kind==='exam'?'rounded-sm':'rounded-full'}" style="background:${colorOf(p.subjectId)}"></i><div class="flex-1 min-w-0"><strong>${esc(nameOf(p.subjectId))}</strong> <span class="text-xs ${p.kind==='real'?'font-bold':'muted'}"${p.kind==='real'?' style="color:var(--real)"':''}>${KIND[p.kind]}${p.time?', '+esc(p.time):''}</span>${p.note?`<div class="muted text-xs truncate">${esc(p.note)}</div>`:''}</div>${p.kind==='real'?`<span class="text-xs font-bold" style="color:var(--real)">${when(p.date)}</span>`:'<button class="btn text-xs go">Open</button>'}</div>`;
+    li.querySelector('.go')&&(li.querySelector('.go').onclick=()=>launch(p));
+    ul.append(li);
+  }
+  const nx=state.plans.filter(p=>p.kind==='real'&&p.date>=today).sort((a,b)=>a.date.localeCompare(b.date))[0];
+  $('hNext').classList.toggle('hide',!nx);
+  $('hPend').classList.toggle('hide',!(state.session&&state.session.ended));
+  if(nx)$('hNext').textContent=`Next real test: ${nameOf(nx.subjectId)}, ${when(nx.date).toLowerCase()} (${new Date(nx.date+'T00:00').toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'})}${nx.time?', '+nx.time:''})`;
+  paintHome();
+}
+$('nameBtn').onclick=()=>{$('nameIn').value=state.name;$('nameBtn').classList.add('hide');$('nameIn').classList.remove('hide');$('nameIn').focus();$('nameIn').select()};
+$('nameIn').onblur=()=>{const v=$('nameIn').value.trim().slice(0,24);if(v)state.name=v;save();$('nameIn').classList.add('hide');$('nameBtn').classList.remove('hide');$('nameBtn').textContent=state.name};
+$('nameIn').onkeydown=e=>{if(e.key==='Enter')e.target.blur();if(e.key==='Escape'){e.target.value=state.name;e.target.blur()}};
+$('hGrade').onclick=()=>setMode('exam');
+$('hDisc').onclick=()=>{if(confirm('Discard this finished exam without logging a score?')){state.session=null;unsealed=false;save();render()}};
+$('goStudy').onclick=()=>setMode('study');
+$('goCal').onclick=()=>setMode('calendar');
+
+/* ---------- backup ---------- */
+$('exp').onclick=()=>{
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({subjects:state.subjects,scores:state.scores,plans:state.plans,log:state.log,name:state.name},null,2)],{type:'application/json'}));
+  a.download=`aperio-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);
+};
+$('imp').onchange=async e=>{
+  try{
+    const d=JSON.parse(await e.target.files[0].text());
+    if(!Array.isArray(d.subjects)||!Array.isArray(d.scores))throw 0;
+    state.subjects=d.subjects;state.scores=d.scores;if(Array.isArray(d.plans))state.plans=d.plans;if(d.log&&typeof d.log==='object')state.log=d.log;if(typeof d.name==='string'&&d.name)state.name=d.name.slice(0,24);state.active=d.subjects[0]?.id||null;save();render();status('Backup imported.');
+  }catch{status('That file is not a FocusStation backup.')}
+  e.target.value='';
+};
+
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js');
+render();
+</script>
+</body>
+</html>

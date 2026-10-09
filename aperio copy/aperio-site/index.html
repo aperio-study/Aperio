@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aperio: study calm, test hard</title>
+<meta name="description" content="Aperio is a focus app for exam prep: study timers, locked mock exams, a planning calendar and progress tracking.">
+<link rel="icon" href="app/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#15232b;--mut:#5d717b;--acc:#1b7a6c;--acc2:#e9a23b;--line:rgba(21,35,43,.14)}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Bricolage Grotesque',system-ui,sans-serif;color:var(--ink);min-height:100vh;background:radial-gradient(900px 520px at 5% -8%,#bfe8df,transparent 62%),radial-gradient(800px 520px at 100% 0,#f6dfb8,transparent 58%),#eef3f4}
+main{max-width:960px;margin:0 auto;padding:2rem 1.25rem 4rem}
+.logo{display:flex;align-items:center;gap:.7rem;font-weight:800;font-size:1.5rem}
+h1{font-size:clamp(2.4rem,7vw,4.5rem);line-height:1.02;letter-spacing:-.03em;margin:3rem 0 1rem;font-weight:800}
+h1 span{background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:1.15rem;color:var(--mut);max-width:38rem;line-height:1.6}
+.cta{display:flex;flex-wrap:wrap;gap:.75rem;margin:2rem 0 .5rem}
+[hidden]{display:none!important}
+.btn{display:inline-block;padding:.75rem 1.4rem;border-radius:99px;border:1px solid var(--line);font-weight:600;color:var(--ink);text-decoration:none;background:rgba(255,255,255,.6)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn:hover{border-color:var(--acc)}
+.btn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.note{font-size:.85rem;color:var(--mut)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem;margin:3rem 0}
+.card{background:rgba(255,255,255,.72);border:1px solid var(--line);border-radius:18px;padding:1.1rem 1.2rem;box-shadow:0 10px 30px -14px rgba(20,60,60,.35)}
+.card h3{margin:0 0 .35rem;font-size:1.05rem}.card p{margin:0;color:var(--mut);font-size:.92rem;line-height:1.5}
+h2{font-size:1.4rem;margin:2.5rem 0 .8rem}
+ol{color:var(--mut);line-height:1.8;padding-left:1.2rem}
+footer{margin-top:3rem;color:var(--mut);font-size:.85rem}
+</style>
+</head>
+<body>
+<main>
+  <div class="logo"><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b7a6c"/><stop offset="1" stop-color="#e9a23b"/></linearGradient></defs><circle cx="20" cy="20" r="15" fill="none" stroke="rgba(21,35,43,.14)" stroke-width="5"/><path d="M20 5a15 15 0 1 1-13 22.5" fill="none" stroke="url(#g)" stroke-width="5" stroke-linecap="round"/></svg>Aperio</div>
+  <h1>Study calm.<br><span>Test hard.</span></h1>
+  <p class="lead">A focus app for high-school and college students. Practise in a relaxed study mode, then sit mock exams under real conditions with the answer sheet locked until you finish.</p>
+  <div class="cta">
+    <a class="btn pri" href="app/index.html">Open Aperio in your browser</a>
+    <a id="dl-mac" class="btn" hidden download>Download for Mac</a>
+    <a id="dl-win" class="btn" hidden download>Download for Windows</a>
+  </div>
+  <p class="note">Free. Your data stays on your device.</p>
+  <p id="soon" class="note">Desktop installers are coming soon. For now, open Aperio in your browser and install it from there (steps below).</p>
+  <div class="grid">
+    <div class="card"><h3>Study mode</h3><p>Adjustable focus timers, ambient sound and chimes at 10 and 5 minutes left.</p></div>
+    <div class="card"><h3>Exam mode</h3><p>Full-screen exam paper, a countdown you set, and the answer sheet locked until you submit.</p></div>
+    <div class="card"><h3>Calendar</h3><p>Plan study sessions, practice exams and real test dates, with your PDFs ready beforehand.</p></div>
+    <div class="card"><h3>Progress</h3><p>Grade each exam and watch your scores and daily study hours build up by subject.</p></div>
+  </div>
+  <h2>First launch of the desktop app</h2>
+  <p class="note" style="font-size:.95rem;line-height:1.6">The apps are not code-signed yet, so your computer asks for confirmation once. Mac: right-click Aperio and choose Open, then Open again. Windows: choose More info, then Run anyway.</p>
+  <h2>Install from the browser</h2>
+  <ol>
+    <li>Open Aperio in Chrome, Edge or Safari.</li>
+    <li>Chrome and Edge: press the Install app button inside Aperio. Safari on Mac: choose File, then Add to Dock.</li>
+    <li>It opens in its own window and keeps working offline.</li>
+  </ol>
+  <footer>&copy; Aperio</footer>
+</main>
+<script>
+/* Set REPO once your GitHub release exists, and the download buttons appear. */
+const REPO=''; // your GitHub 'username/repo', e.g. 'anson/aperio'
+const LINKS=REPO?{mac:`https://github.com/${REPO}/releases/latest/download/Aperio.dmg`,win:`https://github.com/${REPO}/releases/latest/download/Aperio-Setup.exe`}:{mac:'downloads/Aperio.dmg',win:'downloads/Aperio-Setup.exe'};
+let shown=0;
+Promise.all(Object.entries(LINKS).map(async([k,u])=>{
+  const a=document.getElementById('dl-'+k);
+  let ok=/^https?:/.test(u);
+  if(!ok){try{const r=await fetch(u,{method:'HEAD'});ok=r.ok&&!(r.headers.get('content-type')||'').includes('text/html')}catch{}}
+  if(ok){a.href=u;a.hidden=false;shown++}
+})).then(()=>{document.getElementById('soon').hidden=shown>0});
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+
+{
+  "name": "aperio",
+  "productName": "Aperio",
+  "version": "1.0.0",
+  "description": "Study timers, locked mock exams, a planning calendar and progress tracking.",
+  "author": "Aperio",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.aperio.studyapp",
+    "productName": "Aperio",
+    "directories": {
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "app/**/*"
+    ],
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "category": "public.app-category.education",
+      "artifactName": "Aperio.${ext}"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "Aperio-Setup.${ext}"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "artifactName": "Aperio.${ext}"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "aperio-study",
+        "repo": "Aperio",
+        "releaseType": "release"
+      }
+    ]
+  }
+}
